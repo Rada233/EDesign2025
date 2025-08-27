@@ -16,42 +16,50 @@ int ECPULSE1 = 0,ECPULSE2 = 0,ECPULSE3 = 0;
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 void Encoder_Init_TIM2(void)
 {
-	GPIO_InitTypeDef 		GPIO_Initure;
-	__HAL_RCC_TIM2_CLK_ENABLE();            	//使能定时器2
-	__HAL_RCC_GPIOA_CLK_ENABLE();            	//开启GPIOA时钟
-	__HAL_AFIO_REMAP_TIM2_PARTIAL_1();          //外设复用1
-	
-	GPIO_Initure.Pin=GPIO_PIN_0 |GPIO_PIN_1;    //PA0 1
-	GPIO_Initure.Mode=GPIO_MODE_INPUT;          //输入模式
-	GPIO_Initure.Speed=GPIO_SPEED_FREQ_HIGH;	 //高速
-	HAL_GPIO_Init(GPIOA,&GPIO_Initure); 
-    
-//	__HAL_RCC_GPIOB_CLK_ENABLE();            	//开启GPIOB时钟	
-//	GPIO_Initure.Pin= GPIO_PIN_3;  //PA0 1
-//	GPIO_Initure.Mode=GPIO_MODE_INPUT;          //复用输入
-//	GPIO_Initure.Speed=GPIO_SPEED_FREQ_HIGH;	//高速
-//	HAL_GPIO_Init(GPIOB,&GPIO_Initure); 
-	
-	TIM_Handler.Instance=TIM2;             		//定时器1
-	TIM_Handler.Init.Prescaler=0;           	//定时器分频
-	TIM_Handler.Init.CounterMode=TIM_COUNTERMODE_UP;//向上计数模式
-	TIM_Handler.Init.Period=ENCODER_TIM_PERIOD;     //自动重装载值
-	TIM_Handler.Init.ClockDivision=TIM_CLOCKDIVISION_DIV1;	//不分频
-	TIM_Handler.Init.RepetitionCounter = 0;//重复计数器
-	TIM_Handler.Init.AutoReloadPreload  = TIM_AUTORELOAD_PRELOAD_ENABLE;
-	
-    Encoder_sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
-    Encoder_sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
-    Encoder_sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
-    Encoder_sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-    Encoder_sConfig.IC1Filter = 0;
-    Encoder_sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
-    Encoder_sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
-    Encoder_sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-	Encoder_sConfig.IC2Filter = 0;
-	
-	HAL_TIM_Encoder_Init(&TIM_Handler, &Encoder_sConfig);
+    GPIO_InitTypeDef GPIO_Initure;
 
+    // 1. Enable peripheral clocks
+    __HAL_RCC_TIM2_CLK_ENABLE();       // Enable TIM2 clock
+    __HAL_RCC_GPIOA_CLK_ENABLE();      // Enable GPIOA clock (for PA15)
+    __HAL_RCC_GPIOB_CLK_ENABLE();      // Enable GPIOB clock (for PB3)
+
+    // 2. Apply full remap so TIM2_CH1 ? PA15, TIM2_CH2 ? PB3
+    __HAL_AFIO_REMAP_TIM2_ENABLE();
+
+    // 3. Configure PA15 as TIM2_CH1 input
+    GPIO_Initure.Pin = GPIO_PIN_15;
+    GPIO_Initure.Mode = GPIO_MODE_INPUT;               // Input mode (no change from original)
+    GPIO_Initure.Speed = GPIO_SPEED_FREQ_HIGH;         // High speed for fast signals
+    HAL_GPIO_Init(GPIOA, &GPIO_Initure);
+
+    // 4. Configure PB3 as TIM2_CH2 input
+    GPIO_Initure.Pin = GPIO_PIN_3;
+    HAL_GPIO_Init(GPIOB, &GPIO_Initure);
+
+    // 5. Initialize TIM2 base settings
+    TIM_Handler.Instance = TIM2;                       // Select TIM2
+    TIM_Handler.Init.Prescaler = 0;                     // No prescaler
+    TIM_Handler.Init.CounterMode = TIM_COUNTERMODE_UP;  // Count up (ignored in encoder mode)
+    TIM_Handler.Init.Period = ENCODER_TIM_PERIOD;       // Auto-reload value
+    TIM_Handler.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1; // No clock division
+    TIM_Handler.Init.RepetitionCounter = 0;             // Not used here
+    TIM_Handler.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE; // Preload ARR
+
+    // 6. Configure encoder interface (same as original logic)
+    Encoder_sConfig.EncoderMode = TIM_ENCODERMODE_TI1;  // Use CH1 as encoder input source
+    Encoder_sConfig.IC1Polarity = TIM_ICPOLARITY_RISING; // Rising edge polarity for CH1
+    Encoder_sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI; // Map CH1 directly
+    Encoder_sConfig.IC1Prescaler = TIM_ICPSC_DIV1;       // No prescaler for CH1
+    Encoder_sConfig.IC1Filter = 0;                       // No input filter for CH1
+    Encoder_sConfig.IC2Polarity = TIM_ICPOLARITY_RISING; // Rising edge polarity for CH2
+    Encoder_sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI; // Map CH2 directly
+    Encoder_sConfig.IC2Prescaler = TIM_ICPSC_DIV1;       // No prescaler for CH2
+    Encoder_sConfig.IC2Filter = 0;                       // No input filter for CH2
+
+    // 7. Initialize TIM2 in encoder mode
+    HAL_TIM_Encoder_Init(&TIM_Handler, &Encoder_sConfig);
+
+    // 8. Start encoder interface on both channels
     HAL_TIM_Encoder_Start(&TIM_Handler, TIM_CHANNEL_ALL);
 }
 
@@ -192,8 +200,7 @@ void TIM4_IRQHandler(void)
 @备    注：无
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 void TIM3_IRQHandler(void)
-{ 		    		  	
-	HAL_TIM_IRQHandler(&TIM3_Handler);		    
+{ 		    		  			    
 	if(TIM3->SR&0X0001)//溢出中断
 	{    				   				     	    	
 	}				   
@@ -209,8 +216,7 @@ void TIM3_IRQHandler(void)
 @备    注：无
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 void TIM2_IRQHandler(void)
-{ 		    		  	
-	HAL_TIM_IRQHandler(&TIM2_Handler);		    
+{ 		    		  			    
 	if(TIM2->SR&0X0001)//溢出中断
 	{    				   				     	    	
 	}				   
