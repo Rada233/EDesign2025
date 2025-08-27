@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "lq_hcsr04.h": "c",
+        "include.h": "c",
+        "car_main.h": "c",
+        "main.h": "c",
+        "string.h": "c",
+        "stdint.h": "c",
+        "stdlib.h": "c",
+        "stm32f1xx_it.h": "c"
+    }
+}
