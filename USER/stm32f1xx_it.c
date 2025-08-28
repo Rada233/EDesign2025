@@ -146,14 +146,14 @@ void SysTick_Handler(void)
 	if(++ Sys_Flag > 50)
     {
 		Sys_Flag = 0;
-		Control();
+		//Control();
 		
 	}
 	
 	if(++i == 100)
 	{
 		i = 0;
-		car_tim();          // 小车运行函数
+		//car_tim();          // 小车运行函数
 	}
 }
 
@@ -179,13 +179,13 @@ void TIM1_UP_IRQHandler(void)
 @调用方法：无
 @备    注：无
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
-//void TIM4_IRQHandler(void)
-//{ 		    		  			    
-//	if(TIM4->SR&0X0001)//溢出中断
-//	{    				   				     	    	
-//	}				   
-//	TIM4->SR&=~(1<<0);//清除中断标志位 	    
-//}
+void TIM4_IRQHandler(void)
+{ 		    		  			    
+	if(TIM4->SR&0X0001)//溢出中断
+	{    				   				     	    	
+	}				   
+	TIM4->SR&=~(1<<0);//清除中断标志位 	    
+}
 
 /*LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 @函数名称：void TIM3_IRQHandler(void)
@@ -196,16 +196,16 @@ QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 @调用方法：无
 @备    注：无
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
-//void TIM3_IRQHandler(void)
-//{ 	
-//    HAL_TIM_IRQHandler(&TIM3_Handler);   
-//    
-//	if(TIM3->SR&0X0001)//溢出中断
-//	{ 
-//        
-//	}				   
-//	TIM3->SR&=~(1<<0);//清除中断标志位 	    
-//}
+void TIM3_IRQHandler(void)
+{ 	
+   HAL_TIM_IRQHandler(&TIM3_Handler);   
+   
+	if(TIM3->SR&0X0001)//溢出中断
+	{ 
+       
+	}				   
+	TIM3->SR&=~(1<<0);//清除中断标志位 	    
+}
 
 
 /*LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
@@ -217,14 +217,14 @@ QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
 @调用方法：无
 @备    注：无
 QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ*/
-//void TIM2_IRQHandler(void)
-//{ 		    		 
-//    HAL_TIM_IRQHandler(&TIM2_Handler);    
-//	if(TIM2->SR&0X0001)//溢出中断
-//	{    				   				     	    	
-//	}				   
-//	TIM2->SR&=~(1<<0);//清除中断标志位 	    
-//}
+void TIM2_IRQHandler(void)
+{ 		    		 
+  HAL_TIM_IRQHandler(&TIM2_Handler);    
+	if(TIM2->SR&0X0001)//溢出中断
+	{    				   				     	    	
+	}				   
+	TIM2->SR&=~(1<<0);//清除中断标志位 	    
+}
 
 // 定时器 中断服务回调函数
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)

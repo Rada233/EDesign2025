@@ -26,14 +26,14 @@ int main(void)
 	//-----------------------------------------------------------------
 	LED_Init();			// LED初始化
 	OLED_Init();		// OLED初始化   
-	OLED_Show_LQLogo(); // 显示LOGO
+	//OLED_Show_LQLogo(); // 显示LOGO
 	delay_ms(500);		// 延时等待
 	OLED_CLS();			// 清屏
 //===================================================================
 	Car_main();         //光电循迹整车程序    
 	while (1)
 	{
-		OLED_Show_LQLogo();
+		//OLED_Show_LQLogo();
 		LED_Ctrl(RVS);
 		delay_ms(200);
 		

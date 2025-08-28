@@ -58,12 +58,14 @@ void Car_main(void)
     MotorInit();                    
     sensor_init();
     Ultrasonic_Init();
-    
+    Encoder_Init_TIM2();
+    Encoder_Init_TIM3();
+    Encoder_Init_TIM4();
     // PID初始化
     PidInit(&PID_L);    
     PidInit(&PID_R);
     PidInit(&PID_DIST);
-    PID_DIST.kp = 0.04;  // 距离控制参数
+    PID_DIST.kp = 2;  // 距离控制参数
     PID_DIST.ki = 0.0;
     PID_DIST.kd = 0.0;
 
@@ -137,7 +139,8 @@ void OLED_Task(void)
     OLED_P6x8Str(0, 2, txt);
     
     // 编码器数据显示
-    sprintf(txt, "ENC: %d %d %d", ENC_V.L, ENC_V.R, ENC_V.B);
+    //sprintf(txt, "ENC: %d %d %d", ENC_V.L, ENC_V.R, ENC_V.B);
+    sprintf(txt, "ENC: %d %d %d", Read_Encoder(4), Read_Encoder(3), Read_Encoder(2));
     OLED_P6x8Str(0, 3, txt);
     
     // 目标速度显示
@@ -153,6 +156,7 @@ void OLED_Task(void)
     OLED_P6x8Str(0, 6, txt);
     
     delay_ms(100);
+		OLED_CLS();
 }
 
 
@@ -163,13 +167,13 @@ void Control(void)
     switch (Car_State)
     {
     case run:  // 正常循迹
-        car_tim();  
+        car_tim();		
         break;
 
     case circling:  // 固定半径环绕模式
     {
         float radius = TARGET_DIST / 100.0f;  // cm -> m
-        float v = 0.1f;                        // 环绕线速度 (m/s), 可调
+        float v = 15.0f;                        // 环绕线速度 (m/s), 可调
         float omega = v / radius;              // 角速度 (rad/s), 保证车头始终对圆心
 
         // === 车体速度分解，保证车头指向圆心 ===
@@ -198,12 +202,12 @@ void Control(void)
     {
         float R = 0.095f;       // 小车半径 (m)
         float r_wheel = 0.028f; // 轮子半径 (m)
-        float rotate_speed = 1.0f; // rad/s, 自转速度，可调
+        float rotate_speed = 200.0f; // rad/s, 自转速度，可调
 
         // 自转 180°，绕中心原地旋转
-        Target_V.L = -rotate_speed * R / r_wheel;
-        Target_V.R =  rotate_speed * R / r_wheel;
-        Target_V.B = 0;
+        Target_V.L = rotate_speed * R / r_wheel;
+        Target_V.R = rotate_speed * R / r_wheel;
+        Target_V.B = rotate_speed * R / r_wheel;
 
         if((encode_counter += abs(ENC_V.B)) > ROTATE_ANGLE){
             Car_State = run;  // 回到循迹

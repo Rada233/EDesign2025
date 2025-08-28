@@ -146,14 +146,14 @@ void SysTick_Handler(void)
 	if(++ Sys_Flag > 50)
     {
 		Sys_Flag = 0;
-		Control();
+		//Control();
 		
 	}
 	
 	if(++i == 100)
 	{
 		i = 0;
-		car_tim();
+		//car_tim();
 	}
 }
 

@@ -91,7 +91,7 @@ uint32_t Get_Distance(void) // 传入时间单位10us
 	if( 2 < Distance)
         return Distance;
     else 
-        return 1;
+        return 100;
 }
 
 void Test_Ultrasonic()
